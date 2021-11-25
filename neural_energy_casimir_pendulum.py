@@ -252,6 +252,8 @@ if __name__ == '__main__':
     z_star = torch.tensor([math.pi/4, 0, new_model.controller_equilibrium])
     print('z_star', z_star)
 
+    print('norm(z_bar-z_star)', torch.norm(z_bar-z_star))
+
 # plot to understand the behavioral of Lyapunov function around the equilibrium
     f = odefunc(new_model)
 
