@@ -8,6 +8,7 @@ the python code relies on the following packages:
 - pytorch_lightning
 - torchdyn
 
+The code DOI is [![DOI](https://zenodo.org/badge/431977782.svg)](https://zenodo.org/badge/latestdoi/431977782).
 
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
 
