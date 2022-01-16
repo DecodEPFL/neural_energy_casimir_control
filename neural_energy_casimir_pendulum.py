@@ -174,6 +174,8 @@ if __name__ == '__main__':
 
 # python3 -m tensorboard.main --logdir=logs
 
+    # the following odefunc represents the closed-loop system under the neural energy casimir controller.
+
     class odefunc(nn. Module):
         def __init__(self, energy_casimir_model):
             super().__init__()
@@ -275,3 +277,51 @@ if __name__ == '__main__':
     plt.ylabel(r'$V_{\theta}(q, 0, \xi^*)$')
     # plt.show()
     plt.savefig('pendulum_lyapunov_fcn.pdf')
+
+# plot the 3D figure for the lyapunov function for a fixed controller_equilibrium
+
+    fig2 = plt.figure()
+
+    q_star = torch.tensor(math.pi/4)
+    p_star = torch.tensor(0.0)
+    controller_equilibrium = new_model.controller_equilibrium
+
+    q = torch.linspace(-2, 3, 40)
+    p = torch.linspace(-2, 2, 40)
+
+    grid_q, grid_p = torch.meshgrid(q, p)
+
+    q_data = grid_q.reshape(-1,)
+    p_data = grid_p.reshape(-1,)
+
+    lyapunov_val = torch.zeros(q_data.size())
+    for i in range(len(q_data)):
+        lyapunov_val[i] = f.lyapunov_fcn(
+            torch.stack((q_data[i], p_data[i], controller_equilibrium)))
+    grid_lyapunov_val = lyapunov_val.reshape_as(grid_q)
+
+    ax = plt.axes(projection='3d')
+    ax.plot_surface(grid_q.detach().numpy(), grid_p.detach().numpy(), grid_lyapunov_val.detach().numpy(), rstride=1, cstride=1,
+                    cmap='plasma', edgecolor='none')
+    # ax.set_title('surface')
+    plt.xlabel(r'$q$')
+    plt.ylabel(r'$p$')
+    # plt.zlabel(r'$V_{\theta}(q, p, \xi^*)$')
+
+    # below code plot the projection
+
+    ax.set(xlim=(-2, 3), ylim=(-2, 2), zlim=(-3, 4),
+           xlabel=r'$q$', ylabel=r'$p$', zlabel=r'$V_{\theta}(q, p, \xi^*)$')
+
+    ax.contour(grid_q.detach().numpy(), grid_p.detach().numpy(), grid_lyapunov_val.detach().numpy(),
+               levels=20, offset=-3, cmap='plasma')
+
+    # below code plot the desired equilibrium and the achieved equilibrium
+
+    q_star_achieved = z_star[0]
+    p_star_achieved = z_star[1]
+    plt.plot(q_star, p_star, -3, 'o')
+    plt.plot(q_star_achieved, p_star_achieved, -3, '+')
+
+    plt.show()
+    plt.savefig('pendulum_lyapunov_fcn3d.pdf')
